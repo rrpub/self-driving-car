@@ -65,28 +65,33 @@ y_train = np.array(augmentated_measurements)
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Cropping2D, Dropout
 from keras.layers.convolutional import Convolution2D
+from keras.layers import Conv2D
 from keras.layers.pooling import MaxPooling2D
 
 model = Sequential()
-model.add(Lambda(lambda x : x / 255.0 - 0.5, input_shape=(160, 320, 3)))
-
-model.add(Cropping2D(cropping=((80, 25), (0, 0))))
-
-model.add(Convolution2D(6, 5, 5, activation="relu"))
+model.add(Cropping2D(cropping=((70, 25), (0, 0)), input_shape=X_train[0].shape))
+model.add(Lambda(lambda x: (x / 255.0) - 0.5))
+model.add(Dropout(0.2))
+model.add(Conv2D(24, (5, 5), activation="relu", padding='same'))
 model.add(MaxPooling2D())
-
-model.add(Convolution2D(6, 5, 5, activation="relu"))
+model.add(Conv2D(36, (5, 5), activation="relu", padding='same'))
 model.add(MaxPooling2D())
-
-# use dropout to eliminate overfitting and improve the validation loss
-model.add(Dropout(.3))
-
+model.add(Conv2D(48, (5, 5), activation="relu", padding='same'))
+model.add(MaxPooling2D())
+model.add(Dropout(0.2))
+model.add(Conv2D(64, (3, 3), activation="relu", padding='same'))
+model.add(MaxPooling2D())
+model.add(Conv2D(64, (3, 3), activation="relu", padding='same'))
+model.add(MaxPooling2D())
 model.add(Flatten())
-model.add(Dense(120))
-model.add(Dense(84))
+model.add(Dense(1164))
+model.add(Dense(100))
+model.add(Dense(50))
+model.add(Dense(10))
+model.add(Dense(1))
 model.add(Dense(1))
 
 model.compile(loss='mse', optimizer='adam')
-model.fit(X_train, y_train, validation_split=0.2, shuffle=True, nb_epoch=10)
+model.fit(X_train, y_train, validation_split=0.2, shuffle=True, epochs=10)
 
 model.save('model.h5')
