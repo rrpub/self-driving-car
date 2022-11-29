@@ -97,7 +97,7 @@ def train_model(args, X_train, y_train):
   model.add(Dense(1))
   model.add(Dense(1))
 
-  model.compile(loss='mse', optimizer='adam')
+  model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
   history = model.fit(X_train, y_train, validation_split=args.test_size, shuffle=True, epochs=args.epochs, batch_size=args.batch_size)
 
   # summarize history for accuracy
