@@ -36,7 +36,8 @@ def load_data(args):
       current_path = './data/IMG/' + filename
   
       image = cv2.imread(current_path)
-      images.append(image)
+      image_rgb = (cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+      images.append(image_rgb)
 
       measurement = float(line[3])
 
