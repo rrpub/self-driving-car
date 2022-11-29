@@ -96,7 +96,30 @@ def train_model(args, X_train, y_train):
   model.add(Dense(1))
 
   model.compile(loss='mse', optimizer='adam')
-  model.fit(X_train, y_train, validation_split=args.test_size, shuffle=True, epochs=args.epochs, batch_size=args.batch_size)
+  history = model.fit(X_train, y_train, validation_split=args.test_size, shuffle=True, epochs=args.epochs, batch_size=args.batch_size)
+
+  # summarize history for accuracy
+  plt.plot(history.history['accuracy'])
+  plt.plot(history.history['val_accuracy'])
+  plt.title('model accuracy')
+  plt.ylabel('accuracy')
+  plt.xlabel('epoch')
+  plt.legend(['train', 'test'], loc='upper left')
+  plt.show()
+  # summarize history for loss
+  plt.plot(history.history['loss'])
+  plt.plot(history.history['val_loss'])
+  plt.title('model loss')
+  plt.ylabel('loss')
+  plt.xlabel('epoch')
+  plt.legend(['train', 'test'], loc='upper left')
+  plt.show()
+
+  # Visualization of model
+  from keras.utils.vis_utils import plot_model
+  plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
+
+  
 
   model.save('model-'+datetime.now().strftime("%Y%m%d%H%M%S")+'.h5')
 
