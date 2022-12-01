@@ -17,6 +17,8 @@ pip install eventlet
 pip install seaborn
 pip install pandas
 pip install imageio
+pip install pydot
+pip install graphviz
 pip install python-socketio==4.6.1
 pip install python-engineio==3.13.0
 
