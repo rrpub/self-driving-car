@@ -1,13 +1,26 @@
 #References the following git hub code: https://github.com/papiot/CarND-Behavioral-Cloning/blob/master/assig.py
 
 #import libraries
-import keras
+iimport pandas as pd # data analysis toolkit - create, read, update, delete datasets
+import numpy as np #matrix math
+from sklearn.model_selection import train_test_split #to split out training and testing data 
+#keras is a high level wrapper on top of tensorflow (machine learning library)
+#The Sequential container is a linear stack of layers
+from keras.models import Sequential
+#popular optimization strategy that uses gradient descent 
+from keras.optimizers import Adam
+#to save our model periodically as checkpoints for loading later
+from keras.callbacks import ModelCheckpoint
+#what types of layers do we want our model to have?
+from keras.layers import Lambda, Conv2D, MaxPooling2D, Dropout, Dense, Flatten
+#for command line arguments
+import argparse
+#for reading files
+import os
+
 import csv
 import cv2
 
-import numpy as np
-import argparse
-import os
 from datetime import datetime
 import matplotlib.pyplot as plt
 
