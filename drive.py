@@ -15,6 +15,7 @@ from io import BytesIO
 from keras.models import load_model
 import h5py
 from keras import __version__ as keras_version
+import cv2
 
 sio = socketio.Server()
 app = Flask(__name__)
@@ -47,10 +48,13 @@ controller = SimplePIController(0.1, 0.002)
 set_speed = 9
 controller.set_desired(set_speed)
 
+isAssessmentImg = False
+
 
 @sio.on('telemetry')
 def telemetry(sid, data):
     if data:
+        timestamp = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
         # The current steering angle of the car
         steering_angle = data["steering_angle"]
         # The current throttle of the car
@@ -61,7 +65,33 @@ def telemetry(sid, data):
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
-        steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
+        if isAssessmentImg: 
+            image_array = cv2.resize(image_array, (224, 224))           
+            if image_array.shape[2]==1:
+                image_array = np.dstack([image_array, image_array, image_array])
+            image_array = cv2. cvtColor(image_array, cv2.COLOR_BGR2RGB)
+            image_array = image_array.astype(np.float32)/255.
+
+            pred = model.predict(image_array[None, :, :, :])
+            print(pred)
+            print("timestamp: "+timestamp)
+            
+            if(pred[0][0]>0.5):
+                print('Left')
+                #steering_angle = float(steering_angle)-1
+                steering_angle = float(-0.5)
+            elif(pred[0][1]>0.5):
+                print('Right')
+                #steering_angle = float(steering_angle)+1
+                steering_angle = float(0.5)
+            else: 
+                print('else: Forward')
+                #steering_angle = 0
+                steering_angle = (pred[0][1]-pred[0][0])*1
+        else: 
+            image_array = np.asarray(image)
+            steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
+
         print(steering_angle)
         throttle = controller.update(float(speed))
 
@@ -70,7 +100,6 @@ def telemetry(sid, data):
 
         # save frame
         if args.image_folder != '':
-            timestamp = datetime.utcnow().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3]
             image_filename = os.path.join(args.image_folder, timestamp)
             image.save('{}.jpg'.format(image_filename))
     else:
@@ -96,6 +125,7 @@ def send_control(steering_angle, throttle):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Remote Driving')
+    parser.add_argument('-a', help='assessment images',        dest='assessment_img',          type=str,   default='')
     parser.add_argument(
         'model',
         type=str,
@@ -109,7 +139,12 @@ if __name__ == '__main__':
         help='Path to image folder. This is where the images from the run will be saved.'
     )
     args = parser.parse_args()
+    print("image_folder: "+args.image_folder)
 
+    if len(args.assessment_img) > 0: 
+        isAssessmentImg = True
+
+    
     # check that model Keras version is same as local Keras version
     f = h5py.File(args.model, mode='r')
     model_version = f.attrs.get('keras_version')
