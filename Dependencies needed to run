@@ -1,5 +1,5 @@
 dependencies:
-    - python==3.5.2
+    - python==3.10.5
     - numpy
     - matplotlib
     - jupyter
@@ -10,11 +10,13 @@ dependencies:
     - scipy
     - h5py
     - eventlet
-    - flask-socketio
+    - flask-socketio==4.3.2
     - seaborn
     - pandas
     - imageio
+    - python-socketio==4.6.1 
+    - python-engineio==3.13.0
     - pip:
         - moviepy
-        - tensorflow-gpu==1.1
-        - keras==1.2
+        - tensorflow-gpu==2.11.0
+        - keras==2.11.0
