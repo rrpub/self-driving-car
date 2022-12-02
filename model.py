@@ -1,7 +1,6 @@
 #References the following git hub code: https://github.com/papiot/CarND-Behavioral-Cloning/blob/master/assig.py
 
 #import libraries
-iimport pandas as pd # data analysis toolkit - create, read, update, delete datasets
 import numpy as np #matrix math
 from sklearn.model_selection import train_test_split #to split out training and testing data 
 #keras is a high level wrapper on top of tensorflow (machine learning library)
@@ -110,8 +109,10 @@ def train_model(args, X_train, y_train):
   model.add(Dense(1))
   model.add(Dense(1))
 
-  model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
+  model.compile(loss='mse', optimizer=Adam(args.learning_rate), metrics=['accuracy'])
   history = model.fit(X_train, y_train, validation_split=args.test_size, shuffle=True, epochs=args.epochs, batch_size=args.batch_size)
+
+  model.save('model-'+datetime.now().strftime("%Y%m%d%H%M%S")+'.h5')
 
   # summarize history for accuracy
   plt.plot(history.history['accuracy'])
@@ -134,9 +135,6 @@ def train_model(args, X_train, y_train):
   from keras.utils.vis_utils import plot_model
   plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
-  
-
-  model.save('model-'+datetime.now().strftime("%Y%m%d%H%M%S")+'.h5')
 
 
 def main():
